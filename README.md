@@ -1,4 +1,4 @@
-# @zwingd/cms-revalidate-nextjs
+# @zwingd-ce/cms-revalidate-nextjs
 
 Drop-in Next.js route handler + HMAC-verified webhook receiver for revalidating ISR pages when content changes in Zwingd CMS.
 
@@ -13,7 +13,7 @@ This package is the canonical implementation, lifted out of `feezy.one`'s produc
 ## Install
 
 ```bash
-pnpm add @zwingd/cms-revalidate-nextjs
+pnpm add @zwingd-ce/cms-revalidate-nextjs
 # or: npm install / yarn add
 ```
 
@@ -25,7 +25,7 @@ Drop a 3-line route handler into your storefront:
 
 ```ts
 // app/api/revalidate/route.ts
-import { createRevalidateHandler } from "@zwingd/cms-revalidate-nextjs";
+import { createRevalidateHandler } from "@zwingd-ce/cms-revalidate-nextjs";
 
 export const POST = createRevalidateHandler({
   secret: process.env.CMS_WEBHOOK_SECRET!,
