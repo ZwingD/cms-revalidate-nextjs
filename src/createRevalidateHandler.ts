@@ -36,20 +36,14 @@ import {
 import type { HandlerOptions, WebhookPayload } from "./types.ts";
 import { verifyWebhook } from "./verifyWebhook.ts";
 
-/** A minimal subset of the Next.js Request shape the handler needs. */
-type MinimalRequest = {
-  text(): Promise<string>;
-  headers: { get(name: string): string | null };
-};
-
 export function createRevalidateHandler(
   options: HandlerOptions,
-): (req: MinimalRequest) => Promise<Response> {
+): (req: Request) => Promise<Response> {
   const replayWindowMs = options.replayWindowMs ?? DEFAULT_REPLAY_WINDOW_MS;
   const tagsFn = options.tagsFor ?? computeTagsToInvalidate;
   const pathsFn = options.pathsFor ?? computePathsToInvalidate;
 
-  return async function POST(req: MinimalRequest): Promise<Response> {
+  return async function POST(req: Request): Promise<Response> {
     const body = await req.text();
     const sig = req.headers.get("x-cms-signature") ?? "";
     const v = verifyWebhook(body, sig, options.secret, replayWindowMs);
