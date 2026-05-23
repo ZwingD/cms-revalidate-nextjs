@@ -23,7 +23,6 @@
     "build": "tsup",
     "test": "node --test --experimental-strip-types 'tests/**/*.test.ts'",
     "type-check": "tsc --noEmit",
-    "prepare": "tsup --silent",
     "prepublishOnly": "pnpm build && pnpm test && pnpm type-check"
   },
   "peerDependencies": {
