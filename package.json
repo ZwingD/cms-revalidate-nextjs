@@ -1,0 +1,61 @@
+{
+  "name": "@zwingd/cms-revalidate-nextjs",
+  "version": "0.1.0-dev.0",
+  "description": "Next.js route-handler factory + HMAC-verified webhook receiver for revalidating ISR pages when content changes in Zwingd CMS.",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "test": "node --test --experimental-strip-types 'tests/**/*.test.ts'",
+    "type-check": "tsc --noEmit",
+    "prepublishOnly": "pnpm build && pnpm test && pnpm type-check"
+  },
+  "peerDependencies": {
+    "next": ">=14.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "next": "^15.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.5.0"
+  },
+  "keywords": [
+    "zwingd",
+    "cms",
+    "nextjs",
+    "revalidate",
+    "webhook",
+    "isr",
+    "hmac"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ZwingD/cms-revalidate-nextjs.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ZwingD/cms-revalidate-nextjs/issues"
+  },
+  "homepage": "https://github.com/ZwingD/cms-revalidate-nextjs#readme",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=18.17.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
