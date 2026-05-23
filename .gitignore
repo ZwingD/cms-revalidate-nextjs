@@ -1,10 +1,5 @@
 node_modules
-# dist/ is INTENTIONALLY committed until npm publish (D7) is sorted.
-# Reason: consumers fetch this package via 'github:ZwingD/cms-revalidate-nextjs#<sha>'
-# until it's on the npm registry. Without a committed dist, the install
-# would have to run tsup at install time, which OOMs Vercel's build
-# machine on small consumer projects (observed on feezy-website 2026-05-23).
-# Once published to npm, restore the `dist` gitignore line.
+dist
 *.tsbuildinfo
 .npmrc
 .env
