@@ -16,16 +16,41 @@
  * field, set it to a positive integer; the handler will compare against
  * `MAX_PAYLOAD_VERSION` and reject anything newer with HTTP 426 so
  * misconfigured tenants get a clear error instead of silent no-ops.
+ *
+ * **v0.2.0 (Sprint 10A Task 11)** — adds `items[]` for coalesced
+ * payloads (`payloadVersion: 2`). When `items` is present, the handler
+ * iterates and computes the union of tags/paths across all items.
+ * v1 single-item payloads (no `items`, no `payloadVersion`) keep
+ * working unchanged — strictly backward compatible.
  */
+export interface WebhookPayloadItem {
+  /** Content type for this item (e.g. "blog-post", "page"). */
+  contentType: string;
+  /** Slug for this item. Absent for singletons. */
+  slug?: string;
+}
+
 export interface WebhookPayload {
   /** Schema version. Absent → treated as 1. */
   payloadVersion?: number;
   /** Event name. cms-backend currently aliases all content.* events into "frontend.revalidate". */
   event?: string;
-  /** Content type (e.g. "blog-post", "page", "site-settings"). */
-  contentType: string;
-  /** Slug for slug-bearing content types. Absent for singletons or bulk operations. */
+  /**
+   * Content type (e.g. "blog-post", "page", "site-settings").
+   * v1: required. v2: ignored when `items` is present.
+   */
+  contentType?: string;
+  /**
+   * Slug for slug-bearing content types. Absent for singletons or
+   * bulk operations. v1 only — v2 carries slugs inside `items[]`.
+   */
   slug?: string;
+  /**
+   * v2 (`payloadVersion: 2`) only — coalesced batch of items from one
+   * tenant's drain cycle. Each item is processed identically to a v1
+   * single-item payload; tags/paths are deduped across items.
+   */
+  items?: WebhookPayloadItem[];
   /** Tenant realm (e.g. "feezy", "techademy"). Used to scope tag prefixes. */
   tenantRealm: string;
   /** ISO-8601 timestamp. Enforced against the replay window. */
@@ -33,7 +58,7 @@ export interface WebhookPayload {
 }
 
 /** Maximum payload version this package understands. Bump on coordinated schema changes. */
-export const MAX_PAYLOAD_VERSION = 1;
+export const MAX_PAYLOAD_VERSION = 2;
 
 /** Default replay window — 5 minutes — matches the cms-backend spec §7 guard. */
 export const DEFAULT_REPLAY_WINDOW_MS = 5 * 60 * 1000;

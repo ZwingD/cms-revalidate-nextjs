@@ -68,6 +68,41 @@ export function createRevalidateHandler(
     }
 
     const realm = p.tenantRealm ?? options.realm;
+
+    // v0.2.0 (Sprint 10A Task 11) — v2 coalesced payloads carry
+    // `items[]` and `payloadVersion: 2`. Iterate, dedupe tags + paths
+    // via Set, then call revalidateTag/Path once per unique entry.
+    // v1 payloads (no `items`) fall through to the legacy single-item
+    // path below — byte-identical to v0.1.x behaviour.
+    if (p.items && Array.isArray(p.items) && p.items.length > 0) {
+      try {
+        const tags = new Set<string>();
+        const paths = new Set<string>();
+        for (const item of p.items) {
+          if (!item.contentType) continue;
+          for (const tag of tagsFn({
+            contentType: item.contentType,
+            slug: item.slug,
+            realm,
+          })) {
+            tags.add(tag);
+          }
+          for (const path of pathsFn({
+            contentType: item.contentType,
+            slug: item.slug,
+            realm,
+          })) {
+            paths.add(path);
+          }
+        }
+        for (const tag of tags) revalidateTag(tag);
+        for (const path of paths) revalidatePath(path);
+      } catch {
+        return new Response("ok", { status: 200 });
+      }
+      return new Response("ok", { status: 200 });
+    }
+
     if (!p.contentType) return new Response("ok", { status: 200 });
 
     try {
