@@ -15,6 +15,7 @@ export { verifyWebhook } from "./verifyWebhook.ts";
 
 export {
   DEFAULT_REPLAY_WINDOW_MS,
+  MAX_ITEMS_PER_PAYLOAD,
   MAX_PAYLOAD_VERSION,
 } from "./types.ts";
 

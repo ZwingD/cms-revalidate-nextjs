@@ -31,10 +31,13 @@ import { computePathsToInvalidate } from "./computePaths.ts";
 import { computeTagsToInvalidate } from "./computeTags.ts";
 import {
   DEFAULT_REPLAY_WINDOW_MS,
+  MAX_ITEMS_PER_PAYLOAD,
   MAX_PAYLOAD_VERSION,
 } from "./types.ts";
 import type { HandlerOptions, WebhookPayload } from "./types.ts";
 import { verifyWebhook } from "./verifyWebhook.ts";
+
+let overflowWarned = false;
 
 export function createRevalidateHandler(
   options: HandlerOptions,
@@ -75,10 +78,29 @@ export function createRevalidateHandler(
     // v1 payloads (no `items`) fall through to the legacy single-item
     // path below — byte-identical to v0.1.x behaviour.
     if (p.items && Array.isArray(p.items) && p.items.length > 0) {
+      // v0.2.1 — bound items to MAX_ITEMS_PER_PAYLOAD. cms-backend's
+      // coalesce window caps batches at 500, so anything over the
+      // package ceiling (2× headroom) is a sender bug or hostile
+      // payload. Process the first slice deterministically and warn
+      // once per process so the issue surfaces in logs without
+      // flooding.
+      let items = p.items;
+      if (items.length > MAX_ITEMS_PER_PAYLOAD) {
+        if (!overflowWarned) {
+          overflowWarned = true;
+          console.warn(
+            `[cms-revalidate] items[] length ${items.length} exceeds ` +
+              `MAX_ITEMS_PER_PAYLOAD (${MAX_ITEMS_PER_PAYLOAD}); ` +
+              `processing first ${MAX_ITEMS_PER_PAYLOAD} only.`,
+          );
+        }
+        items = items.slice(0, MAX_ITEMS_PER_PAYLOAD);
+      }
+
       try {
         const tags = new Set<string>();
         const paths = new Set<string>();
-        for (const item of p.items) {
+        for (const item of items) {
           if (!item.contentType) continue;
           for (const tag of tagsFn({
             contentType: item.contentType,

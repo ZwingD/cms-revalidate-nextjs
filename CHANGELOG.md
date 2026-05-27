@@ -4,6 +4,24 @@ All notable changes to this package will be documented here. The format follows 
 
 ## [Unreleased]
 
+## [0.2.1] — 2026-05-27
+
+### Added
+
+- **Hardening: `MAX_ITEMS_PER_PAYLOAD = 1000` ceiling on `items[]`.** cms-backend's coalesce window caps batches at 500 (Sprint 10A spec); the package now enforces 2× headroom and drops anything beyond the cap rather than processing it. Overflow logs a single `console.warn` per process. Behaviour is graceful — never 500 a webhook (spec §7).
+- `MAX_ITEMS_PER_PAYLOAD` exported from the package entrypoint for consumer reference.
+
+### Note
+
+- `v0.2.0` was tagged on GitHub (commit `6d5f712`) but never published to npm (publish call needed 2FA that wasn't available at the time). `v0.2.1` is the first npm-published release of the v2-payload-aware receiver; functionally identical to the intended `v0.2.0` plus the items cap.
+
+## [0.2.0] — 2026-05-25 (never published to npm)
+
+### Added
+
+- **`payloadVersion: 2` support.** Handler accepts coalesced webhook payloads carrying `items[]` (per Sprint 10A `blog-scale-hardening-10k` plan). Tags + paths are computed per item, deduped via `Set`, then revalidated once per unique entry.
+- v1 single-item payloads (no `items`, no `payloadVersion`) keep working unchanged — strictly backward compatible.
+
 ## [0.1.0-dev.0] — 2026-05-23
 
 ### Added

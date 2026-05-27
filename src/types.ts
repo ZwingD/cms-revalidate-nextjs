@@ -63,6 +63,15 @@ export const MAX_PAYLOAD_VERSION = 2;
 /** Default replay window — 5 minutes — matches the cms-backend spec §7 guard. */
 export const DEFAULT_REPLAY_WINDOW_MS = 5 * 60 * 1000;
 
+/**
+ * Hard ceiling on `items[]` length per webhook. cms-backend coalesces in
+ * windows of ≤500 (Sprint 10A spec); 2× headroom catches a buggy or
+ * hostile sender without rejecting plausible traffic. Items beyond the
+ * cap are dropped (process the first slice) and a single warn is logged
+ * per process — never 500 a webhook (spec §7).
+ */
+export const MAX_ITEMS_PER_PAYLOAD = 1000;
+
 /** Input to the tag-computation function. */
 export interface TagComputeInput {
   contentType: string;
