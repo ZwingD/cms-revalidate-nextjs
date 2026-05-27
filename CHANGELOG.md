@@ -4,6 +4,21 @@ All notable changes to this package will be documented here. The format follows 
 
 ## [Unreleased]
 
+## [0.2.2] — 2026-05-28
+
+### Added
+
+- **Cascade tags / paths for taxonomy + layout content types.** When cms-backend emits `content.*` for `author`, `tag`, or `category`, the package now ALSO buses `${realm}:blog-post:list` (tag) + revalidates `/blog` (path) so the blog index refreshes whenever a byline / chip / category label changes. Individual `/blog/<slug>` pages refresh too if the consumer tags each post's data fetch with the matching facet tag (e.g. `${realm}:author:${slug}`). When cms-backend emits `content.*` for `navigation` or `site-settings`, the package now ALSO emits a generic `${realm}:layout` tag so consumers can subscribe ONE tag to every page's layout fetch (header / footer / SEO) instead of subscribing to each singleton individually.
+- `page` content type with slug now revalidates `/${slug}` (was previously no paths) — matches the "every page route is reachable" assumption of feezy-website's storefront.
+
+### Why
+
+- Closes the gap left by `cms-backend@f41cc1b` (PR #20) which wired `content.*` emit for AuthorService / TagService / NavigationService. Pre-cascade, a byline rename refreshed only the author archive (`${realm}:author:${slug}`) while every blog post page kept the stale byline until the next blog write touched it. The cascade tag (`${realm}:blog-post:list` for taxonomy; `${realm}:layout` for singletons) is the package-side contract that lets the cms-backend stay simple — backend emits ONE event per changed entity; the package decides which downstream tags / paths fan out.
+
+### Tests
+
+- 11 new test cases (33 total in `computeTags` + `computePaths`, was 22).
+
 ## [0.2.1] — 2026-05-27
 
 ### Added

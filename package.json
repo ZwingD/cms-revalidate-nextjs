@@ -1,6 +1,6 @@
 {
   "name": "@zwingd-ce/cms-revalidate-nextjs",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Next.js route-handler factory + HMAC-verified webhook receiver for revalidating ISR pages when content changes in Zwingd CMS.",
   "type": "module",
   "main": "./dist/index.cjs",
